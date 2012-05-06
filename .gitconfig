@@ -1,0 +1,8 @@
+[user]
+	name = Robert Carlsen
+	email = rwcarlsen@gmail.com
+[core]
+	editor = vim
+	token = 
+[color]
+	ui = true
