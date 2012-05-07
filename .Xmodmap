@@ -1,0 +1,5 @@
+
+xmodmap -e "remove Lock = Caps_Lock" 
+xmodmap -e "clear mod2" 
+xmodmap -e "add Mod2 = Caps_Lock" 
+
