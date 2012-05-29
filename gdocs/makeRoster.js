@@ -1,84 +1,3 @@
-function getClientVals() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var zone = ss.getSpreadsheetTimeZone()
-    var clientRange = ss.getRangeByName("all_clients");
-
-  var vals = [];
-  for (var i = 1; i <= clientRange.getNumRows(); i++) {
-    var firstName = clientRange.getCell(i, 1).getValue();
-    var lastName = clientRange.getCell(i, 2).getValue();
-    var partnerName = clientRange.getCell(i, 3).getValue();
-    var className = clientRange.getCell(i, 4).getValue();
-    var day = clientRange.getCell(i, 6).getValue();
-    var time = clientRange.getCell(i, 7).getValue();
-    var totalDue = clientRange.getCell(i, 20).getValue();
-    var dayOfWeek = clientRange.getCell(i, 28).getValue();
-    var birthday = clientRange.getCell(i, 23).getValue();
-    var materialsReceived = clientRange.getCell(i, 22).getValue();
-    var email = clientRange.getCell(i, 25).getValue();
-    var section = clientRange.getCell(i, 5).getValue();
-
-
-    var matPaidAmt = clientRange.getCell(i, 19).getValue();
-    if (matPaidAmt == "") {
-      matPaidAmt = 0;
-    } else {
-      matPaidAmt = parseFloat(matPaidAmt);
-    }
-    var materialsDue = parseFloat(clientRange.getCell(i, 13).getValue()) - matPaidAmt;
-
-    if (Math.abs(materialsDue) < 1) {
-      var materialsPaid = "yes";
-    } else {
-      var materialsPaid = "";
-    }
-
-    if (Math.abs(totalDue - materialsDue) < 1) {
-      var tuitionPaid = "yes";
-    } else {
-      var tuitionPaid = "";
-    }
-
-    time = Utilities.formatDate(new Date(time), zone, "HH:mm");
-
-    bday = Utilities.formatDate(new Date(birthday), zone, "M/d/y");
-    if (birthday == "") {
-      bday = ""
-    }
-
-    var val = [];
-
-    val.push(lastName + ", " + firstName);
-    val.push(partnerName);
-    val.push(className);
-    val.push(day);
-    val.push(time);
-    val.push(dayOfWeek);
-    val.push(tuitionPaid);
-    val.push(materialsPaid);
-    val.push(materialsReceived);
-    val.push(bday);
-    val.push(email);
-    val.push(section);
-
-    vals.push(val);
-
-    if (i >= 10) {break;}
-  }
-  return vals;
-}
-
-function drawBorders(courses, sheet, topRow) {
-
-  var currRow = topRow;
-
-  for (var i = 0; i < courses.length; i++) {
-    currRow += courses[i].students.length + courses[i].seatsLeft;
-    sheet.getRange(currRow, 1, 1, 20).setBorder(true, false, false, false, false, false);
-  }
-  //sheet.getRange(1, 1, 1, currRow).setBorder(true, false, false, true, false, false);
-}
-
 function makeRoster() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("new-roster");
@@ -86,7 +5,7 @@ function makeRoster() {
   var rosterTopRow = 3;
 
   var vals = getClientVals();
-  courses = splitCourses(vals);
+  courses = parseClients(vals);
   var grid = [];
   for (var i = 0; i < courses.length; i++) {
     grid = grid.concat(gridForCourse(courses[i]));
@@ -114,46 +33,15 @@ function makeRoster() {
   drawBorders(courses, sheet, rosterTopRow);
 }
 
-function seatCounter() {
+function getClientVals() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sectionRange = ss.getRangeByName("sections");
-  var seatsLeftRow = 9;
-  var seatsLeft = new Object();
-  for (var i = 1; i <= sectionRange.getNumRows(); i++) {
-    var sectionName = sectionRange.getCell(i, 2).getValue() + " " + sectionRange.getCell(i, 3).getValue();
-    var seatCount = sectionRange.getCell(i, seatsLeftRow).getValue();
-    seatsLeft[sectionName] = parseInt(seatCount);
-  }
-  return seatsLeft;
+  var zone = ss.getSpreadsheetTimeZone();
+  var clientRange = ss.getRangeByName("all_clients");
+
+  var vals = clientRange.getValues();
 }
 
-function rosterSort(a, b) {
-  dayComp = a[5] - b[5];
-  if (dayComp != 0) {return dayComp;}
-  return a[4] - b[4];
-}
-
-function courseCreator() {
-  var numSeats = seatCounter();
-  return function(val) {
-    var course = new Object();
-    course.students = [];
-    course.name = courseName(val);
-    course.desc = courseDesc(val);
-    course.seatsLeft = numSeats[course.name];
-    return course;
-  }
-}
-
-function courseDesc(val) {
-  return val[2] + "\n" + val[3] + "\n" + val[4];
-}
-
-function courseName(val) {
-  return val[2] + " " + val[11];
-}
-
-function splitCourses(vals) {
+function parseClients(vals) {
   vals.sort(rosterSort);
   var creator = courseCreator();
   var courses = [];
@@ -171,6 +59,58 @@ function splitCourses(vals) {
     course.students.push(studentFor(vals[i]));
   }
   return courses
+}
+
+function drawBorders(courses, sheet, topRow) {
+
+  var currRow = topRow;
+
+  for (var i = 0; i < courses.length; i++) {
+    currRow += courses[i].students.length + courses[i].seatsLeft;
+    sheet.getRange(currRow, 1, 1, 20).setBorder(true, false, false, false, false, false);
+  }
+  //sheet.getRange(1, 1, 1, currRow).setBorder(true, false, false, true, false, false);
+}
+
+function courseCreator() {
+  var numSeats = seatCounter();
+  return function(val) {
+    var course = new Object();
+    course.students = [];
+    course.name = courseName(val);
+    course.desc = courseDesc(val);
+    course.seatsLeft = numSeats[course.name];
+    return course;
+  }
+}
+
+function seatCounter() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sectionRange = ss.getRangeByName("sections");
+  var seatsLeftRow = 9;
+  var seatsLeft = new Object();
+  for (var i = 1; i <= sectionRange.getNumRows(); i++) {
+    var sectionName = sectionRange.getCell(i, 2).getValue() + " " + sectionRange.getCell(i, 3).getValue();
+    var seatCount = sectionRange.getCell(i, seatsLeftRow).getValue();
+    seatsLeft[sectionName] = parseInt(seatCount);
+  }
+  return seatsLeft;
+}
+
+function courseDesc(val) {
+  return val[3] + "\n" + val[5] + "\n" + val[6];
+}
+
+function courseName(val) {
+  return val[3] + " " + val[4];
+}
+
+function rosterSort(a, b) {
+  var dayOfWeekCol = 27;
+  var timeCol = 6;
+  var dayComp = a[dayOfWeekCol] - b[dayOfWeekCol];
+  if (dayComp != 0) {return dayComp;}
+  return a[timeCol] - b[timeCol];
 }
 
 function gridForCourse(course) {
@@ -203,13 +143,43 @@ function gridForCourse(course) {
 }
 
 function studentFor(val) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var zone = ss.getSpreadsheetTimeZone();
+
+  var matPaidAmt = val[18];
+  if (matPaidAmt == "") {
+    matPaidAmt = 0;
+  } else {
+    matPaidAmt = matPaidAmt;
+  }
+  var materialsDue = vals[12] - matPaidAmt;
+  var materialsPaid = "";
+  if (Math.abs(materialsDue) < 1) {
+    materialsPaid = "yes";
+  }
+
+  var totalDue = val[19];
+  var tuitionPaid = "";
+  if (Math.abs(totalDue - materialsDue) < 1) {
+    tuitionPaid = "yes";
+  }
+
+  var bday = Utilities.formatDate(new Date(val[22]), zone, "M/d/y");
+  if (birthday == "") {
+    bday = ""
+  }
+
   var student = new Object();
-  student.name = val[0];
-  student.partner = val[1];
-  student.tuitionPaid = val[6];
-  student.materialsPaid = val[7];
-  student.materialsReceived = val[8];
-  student.bday = val[9];
-  student.email = val[10];
+  student.last = val[0];
+  student.first = val[1];
+  student.partner = val[2];
+
+  student.tuitionPaid = tuitionPaid;
+  student.materialsPaid = materialsPaid;
+  student.materialsReceived = val[21];
+  student.bday = bday;
+
+  student.email = val[24];
   return student;
 }
+
