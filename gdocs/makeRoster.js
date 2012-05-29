@@ -37,8 +37,7 @@ function getClientVals() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var zone = ss.getSpreadsheetTimeZone();
   var clientRange = ss.getRangeByName("all_clients");
-
-  var vals = clientRange.getValues();
+  return clientRange.getValues();
 }
 
 function parseClients(vals) {
@@ -50,6 +49,9 @@ function parseClients(vals) {
   var prevCourse = "";
   var currCourse = "";
   for (var i = 0; i < vals.length; i++) {
+    if (vals[i][0] + vals[i][1] + vals[i][2] == "") {
+      break;
+    }
     currCourse = courseName(vals[i]);
     if (currCourse != prevCourse || (i == vals.length-1)) {
       course = creator(vals[i]);
@@ -69,7 +71,6 @@ function drawBorders(courses, sheet, topRow) {
     currRow += courses[i].students.length + courses[i].seatsLeft;
     sheet.getRange(currRow, 1, 1, 20).setBorder(true, false, false, false, false, false);
   }
-  //sheet.getRange(1, 1, 1, currRow).setBorder(true, false, false, true, false, false);
 }
 
 function courseCreator() {
@@ -98,7 +99,10 @@ function seatCounter() {
 }
 
 function courseDesc(val) {
-  return val[3] + "\n" + val[5] + "\n" + val[6];
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var zone = ss.getSpreadsheetTimeZone();
+  var time = Utilities.formatDate(new Date(val[6]), zone, "h:m");
+  return val[3] + "\n" + val[5] + "\n" + time;
 }
 
 function courseName(val) {
@@ -121,7 +125,7 @@ function gridForCourse(course) {
 
     row.push("");
     row.push(i + 1);
-    row.push(s.name);
+    row.push(s.last + ", " + s.first);
     row.push(s.partner);
     row.push(s.tuitionPaid);
     row.push(s.materialsPaid);
@@ -152,7 +156,7 @@ function studentFor(val) {
   } else {
     matPaidAmt = matPaidAmt;
   }
-  var materialsDue = vals[12] - matPaidAmt;
+  var materialsDue = val[12] - matPaidAmt;
   var materialsPaid = "";
   if (Math.abs(materialsDue) < 1) {
     materialsPaid = "yes";
@@ -165,7 +169,7 @@ function studentFor(val) {
   }
 
   var bday = Utilities.formatDate(new Date(val[22]), zone, "M/d/y");
-  if (birthday == "") {
+  if (val[22] == "") {
     bday = ""
   }
 
@@ -182,4 +186,3 @@ function studentFor(val) {
   student.email = val[24];
   return student;
 }
-
