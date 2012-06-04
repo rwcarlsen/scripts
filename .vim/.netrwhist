@@ -1,0 +1,5 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =3
+let g:netrw_dirhist_1='/home/robert/cyclus/src/Models'
+let g:netrw_dirhist_2='/home/robert/my-test-proj.wiki'
+let g:netrw_dirhist_3='/home/robert/.vim/syntax'
