@@ -1,17 +1,20 @@
 #!/usr/bin/python
 
-import sys, os, argparse
+import os, argparse
 import subprocess as sp
 
-def main():
-    args = parse_cli_args():
-
-    src = build_src_path(args.src)
-    prev_dst, dst = build_dst_paths(args.dst)
+def backup(src, dst, full_backup = False):
+"""
+Create incremental backup stored in a common directory
+with hard links to prev backed up files that haven't changed.
+Uses rsync for the dirty work.
+"""
+    src = build_src_path(src)
+    prev_dst, dst = build_dst_paths(dst)
     
     # build rsync command
     cmd = ['rsync', '-a', '-v']
-    if not args.full:
+    if not full_backup:
         cmd.append('--link-dest=' + prev_dst)
     cmd.append(src)
     cmd.append(dst)
@@ -66,5 +69,6 @@ def build_src_path(arg_src):
     return src
 
 if __name__ == '__main__':
-    main()
+    args = parse_cli_args():
+    backup(args.src, args.dst, full_backup = args.full)
 
