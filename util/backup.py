@@ -1,26 +1,17 @@
 #!/usr/bin/python
 
-import os
 import pyrsync
 
-class bkup:
-  bkups = []
-  def __init__(self, kind, dst, *srcs):
-    self.kind = kind
-    self.dst = dst
-    self.srcs = srcs
-    bkups.append(self)
+bk = pyrsync.Bkup('incr', '/media/spare/backups/Pictures')
+bk.addsrc('/home/robert/Pictures')
 
-srcs['local'] = bkup('incr', '/media/spare/backups', 'Pictures', 'repos')
+bk = pyrsync.Bkup('incr', '/media/spare/backups/repos')
+bk.addsrc('/home/robert/repos')
 
-def main():
-  home = os.getenv('HOME')
-
-# incremental backup of svn repositories
-  for bk in bkup.bkups:
-    for src in bk.srcs:
-      if bk.kind == 'incr':
-        pyrsync.backup(os.path.join(home, src), bk.dst)
+bk = pyrsync.Bkup('mirror', '/media/spare/backups')
+bk.dstssh('family@my1.homeftp.net')
+bk.addsrc('/home/robert/repos')
 
 if __name__ == '__main__':
-  main()
+  pyrsync.run_all()
+  #pyrsync.dry_run_all()

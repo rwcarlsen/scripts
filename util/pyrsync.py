@@ -3,72 +3,116 @@
 import os, argparse
 import subprocess as sp
 
-def backup(src, dst, full_backup = False):
-"""
-Create incremental backup stored in a common directory
-with hard links to prev backed up files that haven't changed.
-Uses rsync for the dirty work.
-"""
-    src = build_src_path(src)
-    prev_dst, dst = build_dst_paths(dst)
-    
-    # build rsync command
-    cmd = ['rsync', '-a', '-v']
-    if not full_backup:
-        cmd.append('--link-dest=' + prev_dst)
-    cmd.append(src)
-    cmd.append(dst)
+class const:
+  dry = False
 
-    print 'Running rsync command ' + cmd + '...'
+def run_all():
+  for bk in Bkup.bkups:
+    bk.run()
+
+def dry_run_all():
+  const.dry = True
+  run_all()
+  const.dry = False
+
+def mirror_back(bk, src):
+  src = ssh_arg_for(bk.srcserv, src)
+  dst = ssh_arg_for(bk.dstserv, bk.dst)
+
+  cmd = ['rsync', '-a', '-v']
+  cmd.append(src)
+  cmd.append(dst)
+
+  run_bkup_cmd(cmd)
+
+def incr_back(bk, src, full_backup = False):
+  """
+  Create incremental backup stored in a common directory with hard links to prev
+  backed up files that haven't changed.  Uses rsync for the dirty work. non-local
+  paths (e.g. w/ a server) not supported.
+  """
+  src = trailing_slash(src)
+  prev_dst, dst = incr_dst_paths(bk.dst)
+  
+  # build rsync command
+  cmd = ['rsync', '-a', '-v']
+  if not full_backup:
+    cmd.append('--link-dest=' + prev_dst)
+  cmd.append(src)
+  cmd.append(dst)
+
+  run_bkup_cmd(cmd)
+
+def run_bkup_cmd(cmd):
+  print 'Running rsync command', cmd
+  if not const.dry:
     sp.call(cmd)
 
-def parse_cli_args():
-    # parse command line args
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--full', action = 'store_true')
-    parser.add_argument('src', metavar='src', help = 'contents of this directory will ba backed up.')
-    parser.add_argument('dst', metavar='dst', help = 'src directory contents are placed in a "backup.[x]" folder inside the dst directory.')
+class Bkup:
+  bkups = []
+  funcs = {}
+  funcs['mirror'] = mirror_back
+  funcs['incr'] = incr_back
 
-    args = parser.parse_args(sys.argv[1:])
+  def __init__(self, kind, dst, *srcs):
+    self.kind = kind
+    self.dst = dst
+    self.srcs = list(srcs)
+    self.dstserv = ''
+    self.srcserv = ''
+    Bkup.bkups.append(self)
 
-    return args
+  def addsrc(self, src):
+    self.srcs.append(src)
 
-def build_dst_paths(dst_root):
-"""
-find last used backup folder extension and generage
-the next backup folder name from it
-"""
-    dst_root = os.path.abspath(dst_root)
-    dir_items = os.listdir(dst_root)
+  def srcssh(self, serv):
+    self.srcserv = serv
 
-    prev_ext = 0
-    prev_name = 'backup'
+  def dstssh(self, serv):
+    self.dstserv = serv
 
-    for item in dir_items:
-        path = os.path.join(dst_root, item)
-        base, ext = os.path.splitext(item)
+  def run(self):
+    for src in self.srcs:
+      Bkup.funcs[self.kind](self, src)
 
-        if not os.path.isdir(path):
-            continue
-        if len(ext) == 0:
-            continue
+def ssh_arg_for(serv, path):
+  arg = trailing_slash(path)
+  if len(serv) > 0:
+    arg = '-e ssh ' + serv + ':' + arg
+  return arg
 
-        if int(ext[1:]) > prev_ext:
-            prev_ext = int(ext[1:])
-            prev_name = base
+def incr_dst_paths(dst_root):
+  """
+  find last used backup folder extension and generage
+  the next backup folder name from it
+  """
+  dst_root = os.path.abspath(dst_root)
+  dir_items = os.listdir(dst_root)
 
-    prev_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext)
-    next_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext + 1)
-    
-    return prev_dst, next_dst
+  prev_ext = 0
+  prev_name = 'backup'
 
-def build_src_path(arg_src):
-    src = arg_src
-    if arg_src[-1] != '/':
-        src += '/'
-    return src
+  for item in dir_items:
+    path = os.path.join(dst_root, item)
+    base, ext = os.path.splitext(item)
 
-if __name__ == '__main__':
-    args = parse_cli_args():
-    backup(args.src, args.dst, full_backup = args.full)
+    if not os.path.isdir(path):
+      continue
+    if len(ext) == 0:
+      continue
+
+    if int(ext[1:]) > prev_ext:
+      prev_ext = int(ext[1:])
+      prev_name = base
+
+  prev_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext)
+  next_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext + 1)
+  
+  return prev_dst, next_dst
+
+def trailing_slash(arg_src):
+  src = arg_src
+  if arg_src[-1] != '/':
+    src += '/'
+  return src
 
