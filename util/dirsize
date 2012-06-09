@@ -1,0 +1,38 @@
+#!/usr/bin/python
+
+import os, sys
+
+def get_size(start_path = '.'):
+  if os.path.isfile(start_path):
+    return os.path.getsize(start_path)
+
+  total_size = 0
+  for dirpath, dirnames, filenames in os.walk(start_path):
+    for f in filenames:
+      fp = os.path.join(dirpath, f)
+      try:
+        total_size += os.path.getsize(fp)
+      except: pass
+  return total_size
+
+def format_size(size):
+  num_digits = len(str(size))
+  num_thousands = int(num_digits / 3)
+  
+  units_map = {0:'B',1:'kB',2:'MB',3:'GB'}
+
+  normed_sz = float(size) / 10**(3 * num_thousands)
+  sz = round(normed_sz, 4)
+
+  return str(sz) + ' ' + units_map[num_thousands]
+
+if __name__ == '__main__':
+  path = os.getcwd()
+  if len(sys.argv) > 1:
+    path = sys.argv[1]
+
+  size = get_size(start_path = path)
+  abspath = os.path.abspath(path)
+
+  print abspath + ':  ' + format_size(size)
+

@@ -1,0 +1,56 @@
+#!/usr/bin/python
+
+import EXIF
+import sys
+import os
+
+if __name__ == '__main__':
+  try:
+    root = sys.argv[1]
+  except:
+    print 'Invalid directory argument.'
+    exit()
+
+  for root, dirs, files in os.walk(root):
+    for name in files:
+      base, ext = os.path.splitext(name)
+      
+      src_path = os.path.join(root, name)
+
+      # extract EXIF date and time data from photo
+      with open(src_path, 'rb') as f:
+        data = EXIF.process_file(f, details=False, debug=False)
+        if not data:
+          continue
+
+        try:
+          date = data['EXIF DateTimeOriginal']
+        except:
+          print 'No date data found for ', src_path
+          continue
+          
+        date, time = str(date).split(' ', 2)
+        year, month, day = date.split(':', 3)
+        hour, minute, sec = time.split(':', 3)
+
+      new_name = '-'.join([year, month, day, hour, minute, sec])
+      dst_path = os.path.join(root, new_name + ext)
+
+      # skip this file if it already has the correct name
+      if new_name in src_path:
+        continue
+
+      # generate a unique filename if it has already been used
+      uniquer = ''
+      while os.path.isfile(dst_path):
+        uniquer += 'a'
+        new_name = '-'.join([year, month, day, hour, minute, sec]) + uniquer + ext
+        dst_path = os.path.join(root, new_name)
+
+      # rename the file
+      try:
+        print 'renaming src ' + src_path + ' to dst ' + dst_path
+        os.rename(src_path, dst_path)
+      except:
+        print 'rename failed for src ' + src_path + ' to dst ' + dst_path
+

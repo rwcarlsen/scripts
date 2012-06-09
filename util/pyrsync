@@ -1,0 +1,70 @@
+#!/usr/bin/python
+
+import sys, os, argparse
+import subprocess as sp
+
+def main():
+    args = parse_cli_args():
+
+    src = build_src_path(args.src)
+    prev_dst, dst = build_dst_paths(args.dst)
+    
+    # build rsync command
+    cmd = ['rsync', '-a', '-v']
+    if not args.full:
+        cmd.append('--link-dest=' + prev_dst)
+    cmd.append(src)
+    cmd.append(dst)
+
+    print 'Running rsync command ' + cmd + '...'
+    sp.call(cmd)
+
+def parse_cli_args():
+    # parse command line args
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--full', action = 'store_true')
+    parser.add_argument('src', metavar='src', help = 'contents of this directory will ba backed up.')
+    parser.add_argument('dst', metavar='dst', help = 'src directory contents are placed in a "backup.[x]" folder inside the dst directory.')
+
+    args = parser.parse_args(sys.argv[1:])
+
+    return args
+
+def build_dst_paths(dst_root):
+"""
+find last used backup folder extension and generage
+the next backup folder name from it
+"""
+    dst_root = os.path.abspath(dst_root)
+    dir_items = os.listdir(dst_root)
+
+    prev_ext = 0
+    prev_name = 'backup'
+
+    for item in dir_items:
+        path = os.path.join(dst_root, item)
+        base, ext = os.path.splitext(item)
+
+        if not os.path.isdir(path):
+            continue
+        if len(ext) == 0:
+            continue
+
+        if int(ext[1:]) > prev_ext:
+            prev_ext = int(ext[1:])
+            prev_name = base
+
+    prev_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext)
+    next_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext + 1)
+    
+    return prev_dst, next_dst
+
+def build_src_path(arg_src):
+    src = arg_src
+    if arg_src[-1] != '/':
+        src += '/'
+    return src
+
+if __name__ == '__main__':
+    main()
+
