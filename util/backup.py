@@ -11,7 +11,7 @@ bk = pyrsync.Bkup('mirror', '/media/spare/backups/mirror/git')
 bk.addsrc('/home/robert/git')
 
 bk = pyrsync.Bkup('mirror', '/media/spare/backups/mirror/bit-wallet')
-bk.addsrc('/home/robert/.bitcoin')
+bk.addsrc('/home/robert/.bitcoin/wallet.dat')
 
 bk = pyrsync.Bkup('mirror', '/Volumes/Desktops/Robert/backups/repos')
 bk.dstssh('family@my1.homeftp.net')
