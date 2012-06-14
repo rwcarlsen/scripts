@@ -24,8 +24,6 @@ bk.addgroups('offsite')
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:
-    groups = sys.argv[1:]
-    pyrsync.run_groups(groups)
+    pyrsync.run_groups(sys.argv[1:])
   else:
     pyrsync.run_all()
-    #pyrsync.dry_run_all()

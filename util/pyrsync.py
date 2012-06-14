@@ -6,6 +6,11 @@ import subprocess as sp
 class const:
   dry = False
 
+def dry_run_all():
+  const.dry = True
+  run_all()
+  const.dry = False
+
 def run_all():
   for bk in Bkup.bkups:
     bk.run()
@@ -16,11 +21,6 @@ def run_groups(names):
       if name in bk.groups:
         bk.run()
         break # run each bk only once
-
-def dry_run_all():
-  const.dry = True
-  run_all()
-  const.dry = False
 
 def mirror_back(bk, src):
   src = ssh_arg_for(bk.srcserv, src)
@@ -65,9 +65,11 @@ class Bkup:
     self.kind = kind
     self.dst = dst
     self.srcs = list(srcs)
+
     self.dstserv = ''
     self.srcserv = ''
     self.groups = []
+
     Bkup.bkups.append(self)
 
   def addgroups(self, *names):
@@ -92,19 +94,27 @@ def ssh_arg_for(serv, path):
     arg = '-e ssh ' + serv + ':' + arg
   return arg
 
-def incr_dst_paths(dst_root):
+def incr_dst_paths(root):
   """
   find last used backup folder extension and generage
   the next backup folder name from it
   """
-  dst_root = os.path.abspath(dst_root)
-  dir_items = os.listdir(dst_root)
+  name, prev_ext = prev_backup_name(root)
 
+  tmp = os.path.join(root, name) + '.'
+  prev_dst = tmp + str(prev_ext)
+  next_dst = tmp + str(prev_ext + 1)
+  
+  return prev_dst, next_dst
+
+def last_backup_name(root):
   prev_ext = 0
   prev_name = 'backup'
 
+  dst_root = os.path.abspath(root)
+  dir_items = os.listdir(root)
   for item in dir_items:
-    path = os.path.join(dst_root, item)
+    path = os.path.join(root, item)
     base, ext = os.path.splitext(item)
 
     if not os.path.isdir(path):
@@ -115,11 +125,6 @@ def incr_dst_paths(dst_root):
     if int(ext[1:]) > prev_ext:
       prev_ext = int(ext[1:])
       prev_name = base
-
-  prev_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext)
-  next_dst = os.path.join(dst_root, prev_name) + '.' + str(prev_ext + 1)
-  
-  return prev_dst, next_dst
 
 def trailing_slash(arg_src):
   src = arg_src
