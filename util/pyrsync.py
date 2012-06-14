@@ -10,6 +10,13 @@ def run_all():
   for bk in Bkup.bkups:
     bk.run()
 
+def run_groups(names):
+  for bk in Bkup.bkups:
+    for name in names:
+      if name in bk.groups:
+        bk.run()
+        break # run each bk only once
+
 def dry_run_all():
   const.dry = True
   run_all()
@@ -60,7 +67,11 @@ class Bkup:
     self.srcs = list(srcs)
     self.dstserv = ''
     self.srcserv = ''
+    self.groups = []
     Bkup.bkups.append(self)
+
+  def addgroups(self, *names):
+    self.groups = names
 
   def addsrc(self, src):
     self.srcs.append(src)
