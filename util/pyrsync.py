@@ -6,6 +6,36 @@ import subprocess as sp
 class const:
   dry = False
 
+class Bkup:
+  bkups = []
+
+  def __init__(self, kind, dst, *srcs):
+    self.kind = kind
+    self.dst = dst
+    self.srcs = list(srcs)
+
+    self.dstserv = ''
+    self.srcserv = ''
+    self.groups = []
+
+    Bkup.bkups.append(self)
+
+  def addgroups(self, *names):
+    self.groups = names
+
+  def addsrc(self, src):
+    self.srcs.append(src)
+
+  def srcssh(self, serv):
+    self.srcserv = serv
+
+  def dstssh(self, serv):
+    self.dstserv = serv
+
+  def run(self):
+    for src in self.srcs:
+      backup_funcs[self.kind](self, src)
+
 def dry_run_all():
   const.dry = True
   run_all()
@@ -55,39 +85,6 @@ def run_bkup_cmd(cmd):
   if not const.dry:
     sp.call(cmd)
 
-class Bkup:
-  bkups = []
-  funcs = {}
-  funcs['mirror'] = mirror_back
-  funcs['incr'] = incr_back
-
-  def __init__(self, kind, dst, *srcs):
-    self.kind = kind
-    self.dst = dst
-    self.srcs = list(srcs)
-
-    self.dstserv = ''
-    self.srcserv = ''
-    self.groups = []
-
-    Bkup.bkups.append(self)
-
-  def addgroups(self, *names):
-    self.groups = names
-
-  def addsrc(self, src):
-    self.srcs.append(src)
-
-  def srcssh(self, serv):
-    self.srcserv = serv
-
-  def dstssh(self, serv):
-    self.dstserv = serv
-
-  def run(self):
-    for src in self.srcs:
-      Bkup.funcs[self.kind](self, src)
-
 def ssh_arg_for(serv, path):
   arg = trailing_slash(path)
   if len(serv) > 0:
@@ -133,4 +130,8 @@ def trailing_slash(arg_src):
   if arg_src[-1] != '/':
     src += '/'
   return src
+
+backup_funcs = {}
+backup_funcs['mirror'] = mirror_back
+backup_funcs['incr'] = incr_back
 
