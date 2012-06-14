@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import pyrsync
+import pyrsync, sys
 
 bk = pyrsync.Bkup('incr', '/media/spare/backups/incr/Pictures')
 bk.addsrc('/home/robert/Pictures')

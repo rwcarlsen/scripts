@@ -99,7 +99,7 @@ def incr_dst_paths(root):
   find last used backup folder extension and generage
   the next backup folder name from it
   """
-  name, prev_ext = prev_backup_name(root)
+  name, prev_ext = last_backup_name(root)
 
   tmp = os.path.join(root, name) + '.'
   prev_dst = tmp + str(prev_ext)
@@ -123,8 +123,10 @@ def last_backup_name(root):
       continue
 
     if int(ext[1:]) > prev_ext:
-      prev_ext = int(ext[1:])
       prev_name = base
+      prev_ext = int(ext[1:])
+
+  return prev_name, prev_ext
 
 def trailing_slash(arg_src):
   src = arg_src
