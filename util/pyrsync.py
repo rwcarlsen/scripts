@@ -3,8 +3,7 @@
 import os, argparse
 import subprocess as sp
 
-class const:
-  dry = False
+dry = False
 
 class Bkup:
   bkups = []
@@ -35,11 +34,6 @@ class Bkup:
   def run(self):
     for src in self.srcs:
       backup_funcs[self.kind](self, src)
-
-def dry_run_all():
-  const.dry = True
-  run_all()
-  const.dry = False
 
 def run_all():
   for bk in Bkup.bkups:
@@ -82,8 +76,15 @@ def incr_back(bk, src, full_backup = False):
 
 def run_bkup_cmd(cmd):
   print 'Running rsync command', cmd
-  if not const.dry:
-    sp.call(cmd)
+  if dry:
+    return
+
+  p = sp.Popen(cmd, stdout = sp.PIPE, stderr = sp.PIPE)
+  out, err = p.communicate()
+
+  print '\n'.join(out.splitlines()[-2:])
+  if p.returncode != 0:
+    print err
 
 def ssh_arg_for(serv, path):
   arg = trailing_slash(path)
@@ -127,8 +128,9 @@ def last_backup_name(root):
 
 def trailing_slash(arg_src):
   src = arg_src
-  if arg_src[-1] != '/':
-    src += '/'
+  if os.path.isdir(src):
+    if arg_src[-1] != '/':
+      src += '/'
   return src
 
 backup_funcs = {}

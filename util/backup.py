@@ -1,5 +1,9 @@
 #!/usr/bin/python
-import pyrsync, sys
+import pyrsync, sys, argparse
+
+####################################################################
+################ create backup entries here ########################
+####################################################################
 
 bk = pyrsync.Bkup('incr', '/media/spare/backups/incr/Pictures')
 bk.addsrc('/home/robert/Pictures')
@@ -22,8 +26,19 @@ bk.dstssh('family@my1.homeftp.net')
 bk.addsrc('/home/robert/repos')
 bk.addgroups('offsite')
 
+####################################################################
+################ Don't tough anything below here ###################
+####################################################################
+
 if __name__ == '__main__':
-  if len(sys.argv) > 1:
-    pyrsync.run_groups(sys.argv[1:])
+  parser = argparse.ArgumentParser(description="Run incremental and mirror backups using rsync")
+  parser.add_argument('--dry', dest='dry', action='store_true', default=False, help='build and show backup commands without running them')
+  parser.add_argument('groups', metavar='group', type=str, nargs='*', help='limit backup runs to those in this group')
+  args = parser.parse_args()
+
+  pyrsync.dry = args.dry
+
+  if len(args.groups) > 0:
+    pyrsync.run_groups(args.groups)
   else:
     pyrsync.run_all()
