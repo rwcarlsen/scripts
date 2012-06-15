@@ -5,73 +5,60 @@ import subprocess as sp
 
 dry = False
 
-class Bkup:
+class Bkup(object):
   bkups = []
 
-  def __init__(self, kind, dst, *srcs):
+  def __init__(self, kind):
     self.kind = kind
-    self.dst = dst
-    self.srcs = list(srcs)
 
-    self.dstserv = ''
-    self.srcserv = ''
-    self.groups = []
+    self.dst = ''
+    self.src = ''
+
+    self.dst_server = ''
+    self.src_server = ''
+
+    self.tags = []
 
     Bkup.bkups.append(self)
 
-  def addgroups(self, *names):
-    self.groups = names
-
-  def addsrc(self, src):
-    self.srcs.append(src)
-
-  def srcssh(self, serv):
-    self.srcserv = serv
-
-  def dstssh(self, serv):
-    self.dstserv = serv
+  def add_tags(self, *names):
+    self.tags = names
 
   def run(self):
-    for src in self.srcs:
-      backup_funcs[self.kind](self, src)
+    backup_funcs[self.kind](self)
 
 def run_all():
   for bk in Bkup.bkups:
     bk.run()
 
-def run_groups(names):
+def run_tags(names):
   for bk in Bkup.bkups:
     for name in names:
-      if name in bk.groups:
+      if name in bk.tags:
         bk.run()
         break # run each bk only once
 
-def mirror_back(bk, src):
-  src = ssh_arg_for(bk.srcserv, src)
-  dst = ssh_arg_for(bk.dstserv, bk.dst)
+def mirror_back(bk):
+  src = ssh_arg_for(bk.src_server, bk.src)
+  dst = ssh_arg_for(bk.dst_server, bk.dst)
 
   cmd = ['rsync', '-a', '-v']
-  cmd.append(src)
-  cmd.append(dst)
-
+  cmd.extend([src, dst])
   run_bkup_cmd(cmd)
 
-def incr_back(bk, src, full_backup = False):
+def incr_back(bk, full_backup = False):
   """
   Create incremental backup stored in a common directory with hard links to prev
   backed up files that haven't changed.  Uses rsync for the dirty work. non-local
   paths (e.g. w/ a server) not supported.
   """
-  src = trailing_slash(src)
+  src = trailing_slash(bk.src)
   prev_dst, dst = incr_dst_paths(bk.dst)
   
-  # build rsync command
   cmd = ['rsync', '-a', '-v']
   if not full_backup:
     cmd.append('--link-dest=' + prev_dst)
-  cmd.append(src)
-  cmd.append(dst)
-
+  cmd.extend([src, dst])
   run_bkup_cmd(cmd)
 
 def run_bkup_cmd(cmd):

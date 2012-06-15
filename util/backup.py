@@ -2,43 +2,48 @@
 import pyrsync, sys, argparse
 
 ####################################################################
-################ create backup entries here ########################
+################ create backup entries below here ##################
 ####################################################################
 
-bk = pyrsync.Bkup('incr', '/media/spare/backups/incr/Pictures')
-bk.addsrc('/home/robert/Pictures')
-bk.addgroups('local', 'media')
+bk = pyrsync.Bkup('incr')
+bk.dst = '/media/spare/backups/incr/Pictures'
+bk.src = '/home/robert/Pictures'
+bk.addtags('local', 'media')
 
-bk = pyrsync.Bkup('incr', '/media/spare/backups/incr/repos')
-bk.addsrc('/home/robert/repos')
-bk.addgroups('local', 'crit')
+bk = pyrsync.Bkup('incr')
+bk.src = '/home/robert/repos'
+bk.dst = '/media/spare/backups/incr/repos'
+bk.addtags('local', 'crit')
 
-bk = pyrsync.Bkup('mirror', '/media/spare/backups/mirror/git')
-bk.addsrc('/home/robert/git')
-bk.addgroups('local')
+bk = pyrsync.Bkup('mirror')
+bk.src = '/home/robert/git'
+bk.dst = '/media/spare/backups/mirror/git'
+bk.addtags('local')
 
-bk = pyrsync.Bkup('mirror', '/media/spare/backups/mirror/bit-wallet')
-bk.addsrc('/home/robert/.bitcoin/wallet.dat')
-bk.addgroups('local', 'crit')
+bk = pyrsync.Bkup('mirror')
+bk.src = '/home/robert/.bitcoin/wallet.dat'
+bk.dst = '/media/spare/backups/mirror/bit-wallet'
+bk.addtags('local', 'crit')
 
-bk = pyrsync.Bkup('mirror', '/Volumes/Desktops/Robert/backups/repos')
-bk.dstssh('family@my1.homeftp.net')
-bk.addsrc('/home/robert/repos')
-bk.addgroups('offsite')
+bk = pyrsync.Bkup('mirror')
+bk.src = '/home/robert/repos'
+bk.dst = '/Volumes/Desktops/Robert/backups/repos'
+bk.dst_server = 'family@my1.homeftp.net'
+bk.addtags('offsite')
 
 ####################################################################
-################ Don't tough anything below here ###################
+################ Don't touch anything below here ###################
 ####################################################################
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description="Run incremental and mirror backups using rsync")
   parser.add_argument('--dry', dest='dry', action='store_true', default=False, help='build and show backup commands without running them')
-  parser.add_argument('groups', metavar='group', type=str, nargs='*', help='limit backup runs to those in this group')
+  parser.add_argument('tags', metavar='tag', type=str, nargs='*', help='limit backup runs to those in this tag')
   args = parser.parse_args()
 
   pyrsync.dry = args.dry
 
-  if len(args.groups) > 0:
-    pyrsync.run_groups(args.groups)
+  if len(args.tags) > 0:
+    pyrsync.run_tags(args.tags)
   else:
     pyrsync.run_all()
