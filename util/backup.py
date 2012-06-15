@@ -1,37 +1,37 @@
 #!/usr/bin/python
 import sys, argparse
 from pyrsync.new import mirror, incr
-from pyrsync.run import *
+from pyrsync import run
 
 ####################################################################
 ################ create backup entries below here ##################
 ####################################################################
 
-bk = pyrsync.Bkup('incr')
+bk = incr()
 bk.dst = '/media/spare/backups/incr/Pictures'
 bk.src = '/home/robert/Pictures'
-bk.addtags('local', 'media')
+bk.add_tags('local', 'media')
 
-bk = pyrsync.Bkup('incr')
+bk = incr()
 bk.src = '/home/robert/repos'
 bk.dst = '/media/spare/backups/incr/repos'
-bk.addtags('local', 'crit')
+bk.add_tags('local', 'crit')
 
-bk = pyrsync.Bkup('mirror')
+bk = mirror()
 bk.src = '/home/robert/git'
 bk.dst = '/media/spare/backups/mirror/git'
-bk.addtags('local')
+bk.add_tags('local')
 
-bk = pyrsync.Bkup('mirror')
+bk = mirror()
 bk.src = '/home/robert/.bitcoin/wallet.dat'
 bk.dst = '/media/spare/backups/mirror/bit-wallet'
-bk.addtags('local', 'crit')
+bk.add_tags('local', 'crit')
 
-bk = pyrsync.Bkup('mirror')
+bk = mirror()
 bk.src = '/home/robert/repos'
 bk.dst = '/Volumes/Desktops/Robert/backups/repos'
 bk.dst_server = 'family@my1.homeftp.net'
-bk.addtags('offsite')
+bk.add_tags('offsite')
 
 ####################################################################
 ################ Don't touch anything below here ###################
@@ -43,9 +43,8 @@ if __name__ == '__main__':
   parser.add_argument('tags', metavar='tag', type=str, nargs='*', help='limit backup runs to those in this tag')
   args = parser.parse_args()
 
-  pyrsync.dry = args.dry
-
+  run.dry = args.dry
   if len(args.tags) > 0:
-    run_tags(args.tags)
+    run.for_tags(args.tags)
   else:
-    run_all()
+    run.all()

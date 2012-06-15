@@ -5,20 +5,20 @@ import subprocess as sp
 dry = False
 
 def run(bk):
-  cmd = self.func(bk)
+  cmd = bk.cmd
   print 'Running rsync command', cmd
   _run_bkup_cmd(cmd)
 
-def run_all(items = new.Bkup.bkups):
-"""
-run each backup in the given list 'items'.  The default is to run every backup
-created tracked via the Bkup class static bkups list.
-"""
+def all(items = new.Bkup.bkups):
+  """
+  run each backup in the given list 'items'.  The default is to run every backup
+  created tracked via the Bkup class static bkups list.
+  """
   for bk in items:
     run(bk)
 
-def run_tags(names):
-"""run every backup instruction having a tag listed in 'names'"""
+def for_tags(names):
+  """run every backup instruction having a tag listed in 'names'"""
   bkups = []
   for bk in new.Bkup.bkups:
     for name in names:

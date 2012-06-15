@@ -19,7 +19,7 @@ def incremental(bk):
   prev_dst, dst = incr_dst_paths(bk.dst)
   
   cmd = ['rsync', '-a', '-v']
-  if prev_dst != next_dst:
+  if prev_dst != dst:
     cmd.append('--link-dest=' + prev_dst)
   cmd.extend([src, dst])
   return cmd

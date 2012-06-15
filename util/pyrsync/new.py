@@ -16,14 +16,18 @@ class Bkup(object):
 
     Bkup.bkups.append(self)
 
+  def getCmd(self):
+    return self._func(self)
+  cmd = property(getCmd)
+
   def add_tags(self, *names):
     self.tags = names
 
 def mirror():
-"""factory for creating a mirror backup instruction"""
+  """factory for creating a mirror backup instruction"""
   return Bkup(bfunc.mirror)
 
 def incr():
-"""factory for creating an incremental backup instruction"""
+  """factory for creating an incremental backup instruction"""
   return Bkup(bfunc.incremental)
 
