@@ -1,5 +1,7 @@
 #!/usr/bin/python
-import pyrsync, sys, argparse
+import sys, argparse
+from pyrsync.new import mirror, incr
+from pyrsync.run import *
 
 ####################################################################
 ################ create backup entries below here ##################
@@ -44,6 +46,6 @@ if __name__ == '__main__':
   pyrsync.dry = args.dry
 
   if len(args.tags) > 0:
-    pyrsync.run_tags(args.tags)
+    run_tags(args.tags)
   else:
-    pyrsync.run_all()
+    run_all()
