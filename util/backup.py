@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys, argparse
-from pyrsync.new import mirror, incr
-from pyrsync import run
+from pyback.new import mirror, incr
+from pybcak import run
 
 ####################################################################
 ################ create backup entries below here ##################
