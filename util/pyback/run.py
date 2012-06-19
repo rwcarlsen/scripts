@@ -25,7 +25,7 @@ def for_tags(names):
       if name in bk.tags:
         bkups.append(bk)
         break # run each bk only once
-  run_all(items = bkups)
+  all(items = bkups)
 
 def _run_bkup_cmd(cmd):
   if dry:
