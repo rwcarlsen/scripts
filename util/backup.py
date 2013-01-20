@@ -8,14 +8,9 @@ from pyback import run
 ####################################################################
 
 bk = incr()
-bk.dst = '/media/spare/backups/incr/Pictures'
 bk.src = '/home/robert/Pictures'
+bk.dst = '/media/spare/backups/incr/Pictures'
 bk.add_tags('local', 'media')
-
-bk = incr()
-bk.src = '/home/robert/repos'
-bk.dst = '/media/spare/backups/incr/repos'
-bk.add_tags('local', 'crit')
 
 bk = mirror()
 bk.src = '/home/robert/git'
@@ -23,15 +18,19 @@ bk.dst = '/media/spare/backups/mirror/git'
 bk.add_tags('local')
 
 bk = mirror()
-bk.src = '/home/robert/.bitcoin/wallet.dat'
-bk.dst = '/media/spare/backups/mirror/bit-wallet'
-bk.add_tags('local', 'crit')
+bk.src = '/home/robert/git'
+bk.dst = 'family@my1.homeftp.net'
+bk.add_tags('offsite')
 
 bk = mirror()
-bk.src = '/home/robert/repos'
-bk.dst = '/Volumes/Desktops/Robert/backups/repos'
-bk.dst_server = 'family@my1.homeftp.net'
-bk.add_tags('offsite')
+bk.src = '/home/robert/.bitcoin/wallet.dat'
+bk.dst = '/media/spare/backups/mirror/bit-wallet'
+bk.add_tags('local')
+
+bk = mirror()
+bk.src = '/home/robert/esther'
+bk.dst = '/media/spare/backups/mirror/esther'
+bk.add_tags('local')
 
 ####################################################################
 ################ Don't touch anything below here ###################

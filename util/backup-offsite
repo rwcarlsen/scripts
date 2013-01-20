@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# backup of svn repositories
-rsync -av $HOME/repos/ -e ssh family@my1.homeftp.net:/Volumes/Desktops/Robert/backups/repos/
-
-rsync -av $HOME/repos/ /$HOME/Dropbox/repo-backup/
