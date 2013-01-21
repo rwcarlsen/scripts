@@ -5,7 +5,7 @@ def mirror(bk):
   src = ssh_arg_for(bk.src_server, bk.src)
   dst = ssh_arg_for(bk.dst_server, bk.dst)
 
-  cmd = ['rsync', '-a', '-v']
+  cmd = ['rsync', '-a', '-v', '--delete']
   cmd.extend([src, dst])
   return cmd
 
