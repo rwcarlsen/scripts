@@ -19,7 +19,8 @@ bk.add_tags('local')
 
 bk = mirror()
 bk.src = '/home/robert/git'
-bk.dst = 'family@my1.homeftp.net'
+bk.dst_server = 'family@my1.homeftp.net'
+bk.dst = '/Volumes/Desktops/Robert/backups/git'
 bk.add_tags('offsite')
 
 bk = mirror()
