@@ -18,7 +18,7 @@ def incremental(bk):
   src = trailing_slash(bk.src)
   prev_dst, dst = incr_dst_paths(bk.dst)
   
-  cmd = ['rsync', '-a', '-v']
+  cmd = ['rsync', '-a', '-v', '--delete']
   if prev_dst != dst:
     cmd.append('--link-dest=' + prev_dst)
   cmd.extend([src, dst])
