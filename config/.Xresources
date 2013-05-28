@@ -1,38 +1,43 @@
 
-! this are Xresources to make UXTerm look good
-! put into ~/.Xresources
+xterm*faceName:           Terminus:style=Regular:size=12
+xterm*dynamicColors:      true
+xterm*eightBitInput:      true
+xterm*saveLines:          4096
+xterm*scrollKey:          true
+xterm*scrollTtyOutput:    false
+xterm*scrollBar:          true
+xterm*rightScrollBar:     true
+xterm*jumpScroll:         true
+xterm*multiScroll:        true
+xterm*toolBar:            false
+xterm*selectToClipboard:  true
 
-UXTerm*font:     -Misc-Fixed-Medium-R-Normal--20-200-75-75-C-100-ISO10646-1
-UXTerm*loginShell: true
-UXTerm*foreground: gray90
-UXTerm*background: black
-UXTerm*cursorColor: rgb:00/80/00
-UXTerm*borderColor: white
-UXTerm*scrollColor: black
-UXTerm*visualBell: true
-UXTerm*saveLines: 1000
-UXTerm*allowSendEvents: True
-UXTerm*sessionMgt: false
-UXTerm*color0: black
-UXTerm*color1: red3
-UXTerm*color2: green3
-UXTerm*color3: yellow3
-UXTerm*color4: DodgerBlue1
-UXTerm*color5: magenta3
-UXTerm*color6: cyan3
-UXTerm*color7: gray90
-UXTerm*color8: gray50
-UXTerm*color9: red
-UXTerm*color10: green
-UXTerm*color11: yellow
-UXTerm*color12: blue
-UXTerm*color13: magenta
-UXTerm*color14: cyan
-UXTerm*color15: white
-UXTerm*colorUL: yellow
-UXTerm*colorBD: white
-gradient:vertical?dimension=400&start=gray10&end=gray40
-gradient:vertical?dimension=550&start=gray10&end=gray40
-gradient:vertical?dimension=300&start=gray10&end=gray40
-gradient:vertical?dimension=300&start=gray10&end=gray40
-UXTerm*rightScrollBar: true
+xterm*background: #1B1B1B
+xterm*foreground: #DEDEDE
+
+xterm*colorUL: #86a2b0
+
+! black
+xterm*color0  : #2E3436
+xterm*color8  : #555753
+! red
+xterm*color1  : #CC0000
+xterm*color9  : #EF2929
+! green
+xterm*color2  : #4E9A06
+xterm*color10 : #8AE234
+! yellow
+xterm*color3  : #C4A000
+xterm*color11 : #FCE94F
+! blue
+xterm*color4  : #3465A4
+xterm*color12 : #729FCF
+! magenta
+xterm*color5  : #75507B
+xterm*color13 : #AD7FA8
+! cyan
+xterm*color6  : #06989A
+xterm*color14 : #34E2E2
+! white
+xterm*color7  : #D3D7CF
+xterm*color15 : #EEEEEC
