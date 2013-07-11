@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# clears cached memory in linux systems (ubuntu, mint, and similar)
-echo 3 | sudo tee /proc/sys/vm/drop_caches
-
