@@ -2,6 +2,7 @@
 --brackets=attach
 --indent=spaces=2
 --indent-preprocessor
+--indent-switches
 --indent-col1-comments
 --min-conditional-indent=2
 --pad-oper
