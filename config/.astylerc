@@ -4,6 +4,7 @@
 --indent-preprocessor
 --indent-switches
 --indent-col1-comments
+--max-instatement-indent=60
 --min-conditional-indent=2
 --pad-oper
 --pad-header
