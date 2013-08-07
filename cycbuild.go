@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -12,7 +13,8 @@ var (
 	cyclusSrc   = flag.String("cyclus-src", "./cyclus", "path to cyclus source (repository root)")
 	cycamoreSrc = flag.String("cycamore-src", "./cycamore", "path to cycamore source (repository root)")
 	installDir  = flag.String("install-dir", "./install", "path to install binaries and resource files")
-	onlyCyclus  = flag.Bool("-core", false, "true to only build cyclus (without cycamore)")
+	onlyCyclus  = flag.Bool("core", false, "true to only build cyclus (without cycamore)")
+	ncpu        = flag.Int("j", 1, "number of processes to use")
 )
 
 var home string
@@ -94,7 +96,7 @@ func buildRepo(path, installDir, kind string) error {
 		"../src",
 	}
 	cmake := exec.Command("cmake", cmakeArgs...)
-	mk := exec.Command("make", "-j3")
+	mk := exec.Command("make", "-j"+fmt.Sprint(*ncpu))
 	install := exec.Command("make", "install")
 
 	return run(cmake, mk, install)
