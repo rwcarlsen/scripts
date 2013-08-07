@@ -26,7 +26,7 @@ autocmd FileType go setlocal shiftwidth=4 tabstop=4 noexpandtab
 """"""""""cyclus c++ formatting code"""""""""
 """""""""""""""""""""""""""""""""""""""""""""
 
-command Gfmt execute "silent %!astyle" | execute "silent %s/^\\(public:\\|private:\\|protected:\\)/ \\1/"
+command Gfmt execute "silent! %!astyle" | execute "silent %s/^\\(public:\\|private:\\|protected:\\)/ \\1/e" | execute "silent %s/{\\n *}/{ }/e"
 
 " Detect if the current file type is a C-like language.
 au BufNewFile,BufRead c,cpp,objc,*.mm,*.hpp call SetupForCLang()
