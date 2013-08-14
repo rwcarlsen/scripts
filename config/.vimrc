@@ -26,6 +26,8 @@ autocmd FileType go setlocal shiftwidth=4 tabstop=4 noexpandtab
 " open header and implementation file in vertical split
 command -nargs=1 -complete=file Dop tabe `=fnamemodify(<f-args>, ":r").".cc"` | vs `=fnamemodify("<args>", ":r").".h"`
 
+au BufNewFile,BufRead Tupfile,*.tup setf tup
+
 """""""""""""""""""""""""""""""""""""""""""""
 """"""""""cyclus c++ formatting code"""""""""
 """""""""""""""""""""""""""""""""""""""""""""
